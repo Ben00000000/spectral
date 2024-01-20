@@ -2,12 +2,12 @@ const joystickZone = document.getElementById('joystick');
 let playerX = window.innerWidth / 2;
 let playerY = window.innerHeight - player.offsetHeight; // Set player at the bottom
 let isHPDecreasing = false;
-let speed = 0.2;
+let speed = 0.5;
 const bullets = [];
 let enemiesRemoved = 0;
 let currentStage = 1;
 let enemiesRespawned = 0;
-let enemiesPerStage = [10,15, 1];
+let enemiesPerStage = [40,80, 1];
 let playermoving = false;
 let bossHP = 100; // Set the initial HP
 let playerHP = 30; // Initial player health
@@ -157,6 +157,7 @@ function updatePlayerPosition() {
   player.style.left = `${playerX}px`;
   player.style.top = `${playerY}px`;
 
+
 }
 
 
@@ -249,33 +250,17 @@ function createEnemy(direction) {
     }
 
 function createBossBullet(bossEnemy) {
-  if (isGameOverScreenVisible() || isWinScreenVisible()) {
+ if (isGameOverScreenVisible() || isWinScreenVisible()) {
     return; // Stop the game loop if the end screens are visible
   }
-
   const bossBullet = document.createElement('div');
   bossBullet.className = 'boss-bullet';
   bossBullet.style.left = `${parseFloat(bossEnemy.style.left) + bossEnemy.offsetWidth / 2}px`;
   bossBullet.style.top = `${parseFloat(bossEnemy.style.top) + bossEnemy.offsetHeight}px`;
 
-  // Randomly choose one of the five bullet images
-  const bulletImages = [
-    'bullet1.png',
-    'bullet2.png',
-    'bullet3.png',
-    'bullet4.png',
-    'bullet5.png',
-  ];
-  const randomImageIndex = Math.floor(Math.random() * bulletImages.length);
-  const randomBulletImage = bulletImages[randomImageIndex];
-  bossBullet.style.backgroundImage = `url('${randomBulletImage}')`;
-  bossBullet.style.backgroundSize = 'cover'; // Set background size to cover
-  bossBullet.style.backgroundPosition = 'center'; // Center the background image
-
   document.body.appendChild(bossBullet);
   bossBullets.push(bossBullet);
 }
-
 
 function moveBossBullets() {
   bossBullets.forEach((bossBullet, index) => {
@@ -345,8 +330,8 @@ function moveEnemyTowardsPlayer(enemy, playerX, playerY) {
         playerX + player.offsetWidth / 2 - (enemyX + enemy.offsetWidth / 2)
       );
 
-      const moveX = Math.cos(angle) * speed * 5;
-      const moveY = Math.sin(angle) * speed * 5;
+      const moveX = Math.cos(angle) * speed * 4;
+      const moveY = Math.sin(angle) * speed * 4;
 
       enemy.style.left = `${enemyX + moveX}px`;
       enemy.style.top = `${enemyY + moveY}px`;
@@ -439,7 +424,7 @@ enemiesRemoved = 0;
     currentStage++;
     if (currentStage <= enemiesPerStage.length) {
       // Display "Stage Clear" message
-      showStageText("STAGE CLEARED", "green", 3000);
+      showStageText("Stage Clear", "green", 3000);
 
       // Move player character to the top
       movePlayerToTop(() => {
@@ -456,7 +441,7 @@ enemiesRemoved = 0;
 
         // Show a colored text for a few seconds
         const color = currentStage === 2 ? 'red' : 'blue';
-        const stageText = currentStage === 2 ? 'STAGE TWO' : 'BOSS FIGHT';
+        const stageText = currentStage === 2 ? 'Stage Two' : 'Boss Fight';
         showStageText(stageText, color, 3000);
         playermoving = false;
       });
@@ -557,9 +542,7 @@ if( !playermoving){
           }
           checkPlayerBossBulletCollision();
 moveBossBullets();
-  // Update the player's HP bar position
-    playerHPBar.style.left = `${playerX}px`;
-    playerHPBar.style.top = `${playerY + 110}px`; // Adjust the top position
+
 
    //  Update the player's HP bar width based on player's health
    const hpBarWidth = (playerHP / 100) * playerHPBar.parentElement.offsetWidth;
@@ -593,7 +576,7 @@ const explosionDuration = 300; // milliseconds for each frame
 // Add a function to decrease boss HP on bullet collision
 // Function to decrease boss HP on bullet collision
 function decreaseBossHP() {
-  bossHP -= 2; // Decrease HP by 10 (you can adjust this value)
+  bossHP -= 10; // Decrease HP by 10 (you can adjust this value)
 
   // Ensure HP doesn't go below 0
   bossHP = Math.max(0, bossHP);
@@ -643,9 +626,7 @@ function playHitSound() {
   hitSound.play();
 }
 
-
-
-
+// Modify the collision detection function to include HP decrease
 function checkBulletEnemyCollision() {
   bullets.forEach((bullet, bulletIndex) => {
     const bulletRect = bullet.getBoundingClientRect();
@@ -660,8 +641,8 @@ function checkBulletEnemyCollision() {
         bulletRect.left < enemyRect.right &&
         bulletRect.right > enemyRect.left
       ) {
-        // Play hit sound when a bullet hits an enemy
-        playHitSound();
+      // Play hit sound when a bullet hits an enemy
+              playHitSound();
         // Play explosion animation
         playExplosionAnimation(enemy);
 
@@ -676,9 +657,9 @@ function checkBulletEnemyCollision() {
         if (enemy.classList.contains('boss-enemy')) {
           decreaseBossHP()
         }
-        else {
-          enemies.splice(enemyIndex, 1);
-          document.body.removeChild(enemy);
+        else{
+        enemies.splice(enemyIndex, 1);
+                document.body.removeChild(enemy);
         }
 
         // Increment the counter
@@ -688,8 +669,6 @@ function checkBulletEnemyCollision() {
     });
   });
 }
-
-
 
 function playExplosionAnimation(enemy) {
   const explosion = document.createElement('div');
